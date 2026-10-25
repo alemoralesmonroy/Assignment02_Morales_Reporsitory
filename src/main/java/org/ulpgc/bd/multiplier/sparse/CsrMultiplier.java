@@ -3,7 +3,7 @@ package org.ulpgc.bd.multiplier.sparse;
 import org.ulpgc.bd.matrix.CsrMatrix;
 import org.ulpgc.bd.matrix.DenseMatrix;
 
-public class CrsMultiplier {
+public class CsrMultiplier {
     // Nótese que este multiplicador no implementa MatrixMultiplier porque
     // las firmas son diferentes (recibe y devuelve CsrMatrix)
     public CsrMatrix multiply(CsrMatrix a, CsrMatrix b) {

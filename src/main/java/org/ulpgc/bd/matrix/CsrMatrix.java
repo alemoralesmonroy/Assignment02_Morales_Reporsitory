@@ -44,6 +44,19 @@ public class CsrMatrix {
         rowPointers[n] = currentNz;
     }
 
+    // Reconstruye la matriz densa original (muy útil para validar y testear)
+    public DenseMatrix toDense() {
+        DenseMatrix dense = new DenseMatrix(n);
+        for (int i = 0; i < n; i++) {
+            int start = rowPointers[i];
+            int end = rowPointers[i + 1];
+            for (int k = start; k < end; k++) {
+                dense.set(i, colIndices[k], values[k]);
+            }
+        }
+        return dense;
+    }
+
     public int size() { return n; }
     public double[] getValues() { return values; }
     public int[] getColIndices() { return colIndices; }
