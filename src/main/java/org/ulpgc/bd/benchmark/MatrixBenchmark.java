@@ -18,15 +18,13 @@ import org.ulpgc.bd.utils.MatrixGenerator;
 import java.util.concurrent.TimeUnit;
 
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
-@BenchmarkMode(Mode.AverageTime) // Mide el tiempo medio por ejecución
-@Warmup(iterations = 3, time = 1) // 3 iteraciones de calentamiento para ignorar el "Cold Start" de Java
-@Measurement(iterations = 5, time = 1) // 5 iteraciones reales (lo que pide el protocolo)
-@Fork(1) // Ejecuta en un proceso JVM separado para máxima precisión
+@BenchmarkMode(Mode.AverageTime)
+@Warmup(iterations = 3, time = 1)
+@Measurement(iterations = 5, time = 1)
+@Fork(1)
 public class MatrixBenchmark {
 
-    // ==========================================
-    // ESTADO PARA LA PARTE A: MATRICES DENSAS
-    // ==========================================
+
     @State(Scope.Thread)
     public static class DenseState {
         @Param({"256", "512", "1024"})
@@ -38,8 +36,6 @@ public class MatrixBenchmark {
         public BaselineMultiplier baseline = new BaselineMultiplier();
         public ReorderedMultiplier reordered = new ReorderedMultiplier();
         public BlockedMultiplier blocked = new BlockedMultiplier(16);
-
-        // @Setup excluye el tiempo de generación del cronómetro (regla del protocolo)
         @Setup(Level.Trial)
         public void setup() {
             a = MatrixGenerator.generateDense(n, 42L);
@@ -47,15 +43,13 @@ public class MatrixBenchmark {
         }
     }
 
-    // ==========================================
-    // ESTADO PARA LA PARTE B: MATRICES DISPERSAS
-    // ==========================================
+
     @State(Scope.Thread)
     public static class SparseState {
-        @Param({"512", "1024"}) // Solo probamos con matrices más grandes aquí
+        @Param({"512", "1024"})
         public int n;
 
-        @Param({"0.80", "0.90", "0.99"}) // 80%, 90% y 99% de ceros
+        @Param({"0.80", "0.90", "0.99"})
         public double sparsity;
 
         public CsrMatrix aCsr;
@@ -70,13 +64,10 @@ public class MatrixBenchmark {
         public void setup() {
             aDense = MatrixGenerator.generateSparse(n, 42L, sparsity);
             bDense = MatrixGenerator.generateSparse(n, 43L, sparsity);
-            // El coste de conversión se aísla, no cuenta para el tiempo del benchmark
             aCsr = new CsrMatrix(aDense);
             bCsr = new CsrMatrix(bDense);
         }
     }
-
-    // --- BENCHMARKS PARTE A ---
     @Benchmark
     public DenseMatrix denseBaseline(DenseState state) {
         return state.baseline.multiply(state.a, state.b);
@@ -91,8 +82,6 @@ public class MatrixBenchmark {
     public DenseMatrix denseBlocked(DenseState state) {
         return state.blocked.multiply(state.a, state.b);
     }
-
-    // --- BENCHMARKS PARTE B ---
     @Benchmark
     public DenseMatrix sparseBaseline(SparseState state) {
         return state.baseline.multiply(state.aDense, state.bDense);
@@ -103,15 +92,13 @@ public class MatrixBenchmark {
         return state.csr.multiply(state.aCsr, state.bCsr);
     }
 
-    // ==========================================
-    // MAIN: CONFIGURACIÓN DEL RUNNER
-    // ==========================================
+
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder()
                 .include(MatrixBenchmark.class.getSimpleName())
-                .addProfiler(GCProfiler.class) // Regla de medir uso de memoria (recolector de basura)
+                .addProfiler(GCProfiler.class)
                 .resultFormat(ResultFormatType.CSV)
-                .result("benchmark_results.csv") // Guarda los resultados puros
+                .result("benchmark_results.csv")
                 .build();
 
         new Runner(opt).run();

@@ -17,8 +17,6 @@ public class DenseMatrix {
     }
 
     public int size() { return n; }
-
-    // Mapeo 1D a 2D: índice = fila * N + columna
     public double get(int i, int j) { return data[i * n + j]; }
     public void set(int i, int j, double value) { data[i * n + j] = value; }
     public void add(int i, int j, double value) { data[i * n + j] += value; }

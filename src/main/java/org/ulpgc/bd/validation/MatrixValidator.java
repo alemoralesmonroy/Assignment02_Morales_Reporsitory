@@ -17,8 +17,6 @@ public class MatrixValidator {
         System.out.println("--- Starting Correctness Validation ---");
         int n = 100;
         long seed = 42L;
-
-        // --- PARTE A: VALIDACIÓN DENSA ---
         System.out.println("\n[Part A] Generating dense matrices (N=" + n + ")...");
         DenseMatrix a = MatrixGenerator.generateDense(n, seed);
         DenseMatrix b = MatrixGenerator.generateDense(n, seed + 1);
@@ -34,25 +32,15 @@ public class MatrixValidator {
         MatrixMultiplier blocked = new BlockedMultiplier(16);
         System.out.println(blocked.getName() + " Validation: " +
                 (compareMatrices(expected, blocked.multiply(a, b)) ? "PASS" : "FAIL"));
-
-        // --- PARTE B: VALIDACIÓN DISPERSA (SPARSE) ---
-        double sparsity = 0.90; // 90% de ceros
+        double sparsity = 0.90;
         System.out.println("\n[Part B] Generating sparse matrices (N=" + n + ", Sparsity=" + (sparsity*100) + "%)...");
         DenseMatrix aSparseDense = MatrixGenerator.generateSparse(n, seed, sparsity);
         DenseMatrix bSparseDense = MatrixGenerator.generateSparse(n, seed + 1, sparsity);
-
-        // Referencia (usando algoritmo denso pero con las matrices llenas de ceros)
         DenseMatrix expectedSparse = baseline.multiply(aSparseDense, bSparseDense);
-
-        // Convertir a formato CSR
         CsrMatrix aCsr = new CsrMatrix(aSparseDense);
         CsrMatrix bCsr = new CsrMatrix(bSparseDense);
-
-        // Multiplicar en formato CSR
         CsrMultiplier csrMultiplier = new CsrMultiplier();
         CsrMatrix actualCsr = csrMultiplier.multiply(aCsr, bCsr);
-
-        // Convertir de vuelta a densa para comparar
         DenseMatrix actualCsrDense = actualCsr.toDense();
         System.out.println(csrMultiplier.getName() + " Validation: " +
                 (compareMatrices(expectedSparse, actualCsrDense) ? "PASS" : "FAIL"));

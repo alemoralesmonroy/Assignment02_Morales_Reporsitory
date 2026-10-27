@@ -7,11 +7,8 @@ public class CsrMatrix {
     private final int[] rowPointers;
     private final int nonZeros;
 
-    // Constructor que convierte una DenseMatrix a formato CSR
     public CsrMatrix(DenseMatrix dense) {
         this.n = dense.size();
-
-        // 1. Contar valores no nulos para dimensionar los arrays
         int nzCount = 0;
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
@@ -21,13 +18,9 @@ public class CsrMatrix {
             }
         }
         this.nonZeros = nzCount;
-
-        // 2. Inicializar los arrays CSR
         this.values = new double[nonZeros];
         this.colIndices = new int[nonZeros];
         this.rowPointers = new int[n + 1];
-
-        // 3. Llenar los arrays
         int currentNz = 0;
         for (int i = 0; i < n; i++) {
             rowPointers[i] = currentNz;
@@ -40,11 +33,8 @@ public class CsrMatrix {
                 }
             }
         }
-        // El último puntero marca el final
         rowPointers[n] = currentNz;
     }
-
-    // Reconstruye la matriz densa original (muy útil para validar y testear)
     public DenseMatrix toDense() {
         DenseMatrix dense = new DenseMatrix(n);
         for (int i = 0; i < n; i++) {
